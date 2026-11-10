@@ -1,0 +1,6 @@
+services:
+  web:
+    build: .
+    image: release-card:v2
+    ports:
+      - "127.0.0.1:8080:80"
