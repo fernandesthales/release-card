@@ -1,0 +1,30 @@
+name: Test Release Card
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test-page:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the source code
+        uses: actions/checkout@v4
+
+      - name: Build the image
+        run: docker build -t release-card:ci .
+
+      - name: Start the container
+        run: docker run -d --name release-card-ci -p 127.0.0.1:8080:80 release-card:ci
+
+      - name: Verify the page served by Nginx
+        run: |
+          curl --fail --silent --show-error \
+            --retry 10 --retry-connrefused --retry-delay 1 \
+            http://127.0.0.1:8080/ -o page.html
+          grep -F '<h1>Release 2</h1>' page.html
